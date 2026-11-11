@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Budget</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08131B;--bg2:#10232B;--panel:rgba(16,35,43,.88);--panel2:#17313b;--gold:#E8B85F;--cream:#F4E6CA;--muted:#AAB8BA;--line:#29464C;--sel:#24535A;
+--good:#7fd6a4;--bad:#f08a8a;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Hanken Grotesk',system-ui,sans-serif;--r:14px;--bot:0px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--cream);font:400 15px/1.5 var(--sans);-webkit-font-smoothing:antialiased;min-height:100dvh;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+a{color:var(--gold)}
+h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;line-height:1.05}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.bgfx{position:fixed;inset:0;z-index:-1;background:radial-gradient(1200px 600px at 80% -10%,#12323b 0%,transparent 60%),var(--bg)}
+
+/* header */
+header.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:22px;min-height:62px;padding:0 max(18px,calc((100% - 1320px)/2));background:rgba(8,19,27,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{font:600 28px/1 var(--serif);color:var(--cream);text-decoration:none}
+.brand small{display:block;font:500 11px/1.2 var(--sans);color:var(--muted);margin-top:3px;letter-spacing:.03em}
+nav.main{display:flex;gap:2px;margin-left:auto}
+nav.main button{background:none;border:0;min-height:44px;padding:0 14px;color:var(--muted);font-weight:600;position:relative;border-radius:8px}
+nav.main button:hover{color:var(--cream)}
+nav.main button[aria-current=page]{color:var(--gold)}
+nav.main button[aria-current=page]::after{content:"";position:absolute;left:14px;right:14px;bottom:5px;height:2px;background:var(--gold);border-radius:2px}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.sync[hidden]{display:none}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.sync.ok i{background:var(--good)}.sync.busy i{background:var(--gold)}.sync.err i{background:var(--bad)}
+.bottomnav{display:none}
+main{max-width:1320px;margin:0 auto;padding:22px 18px 90px}
+section.view{display:none}section.view.on{display:block}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.btn.danger{color:var(--bad)}
+.btn.sm{min-height:32px;padding:0 11px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+input[type=text],input[type=search],input[type=date],input[type=number],input[type=password],select,textarea{width:100%;min-height:40px;padding:8px 10px;background:#0c1d25;border:1px solid var(--line);border-radius:8px}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;height:16px;width:16px;cursor:pointer;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 3l10 10M13 3L3 13' stroke='%23AAB8BA' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")}
+textarea{resize:vertical;line-height:1.5}
+label.f{display:block;font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin:0 0 3px;text-transform:uppercase}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.sub{color:var(--muted);font-size:13px}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.neg{color:var(--good)}
+
+/* period bar */
+.pbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pbar{align-items:flex-end;gap:14px 16px}
+.pnav{display:flex;gap:6px;align-self:center}
+.ptitle{min-width:190px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.pbar h2{font:700 28px/1.1 var(--sans);letter-spacing:-.015em}
+.pbar h2 span{color:var(--muted);font-weight:500}
+.range{font-size:13.5px;color:var(--muted);margin-top:3px}
+.pbar .tag{align-self:center}
+.pjump{display:flex;gap:10px;margin-left:auto}
+.pjump>div{min-width:0}
+.pbar .arrow{width:40px;padding:0;font-size:18px}
+.pbar select{width:auto;min-width:170px}
+.pjump #pSel{min-width:230px}
+.tag{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.cur{color:#1a1405;background:var(--gold);border-color:var(--gold)}
+
+/* period layout */
+.pgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+.sticky{position:sticky;top:78px}
+.entrypanel{margin-bottom:16px}
+.entry>*{min-width:0}
+.entry{display:grid;grid-template-columns:140px minmax(0,1fr) 120px 160px 190px 96px;gap:10px;align-items:end}
+.entry .full{grid-column:1/-1}
+.ekind{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ekind .seg{width:auto}.ekind .seg button{padding:0 16px;white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:100%}
+.seg button{flex:1;background:#0c1d25;border:0;min-height:40px;padding:0 8px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--sel);color:var(--cream)}
+.tools{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.txhead{display:flex;justify-content:space-between;align-items:center;margin:18px 0 8px;gap:10px}
+.txhead h3{font-size:22px}
+.txhead h3,.panel h3{font-family:var(--sans);font-weight:700;letter-spacing:-.01em}
+.txhead input{max-width:200px}
+.txlist{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.tx{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:start;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:11px 14px;border-radius:0}
+.tx:last-child{border-bottom:0}
+.tx:hover{background:var(--sel)}
+.tx .d{color:var(--muted);font-size:13px;padding-top:1px}
+.tx .m{min-width:0}
+.tx .t{display:block;font-weight:600;overflow-wrap:anywhere}
+.tx .s{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.tx .num{font-weight:600;white-space:nowrap}
+.tx .kindpill{margin-left:0}
+.kindpill{font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:6px;border:1px solid var(--line);color:var(--muted)}
+.kindpill.inc{color:var(--good);border-color:#2f6a52}
+
+/* totals matrix */
+table.mx{width:100%;border-collapse:collapse;font-size:13px}
+table.mx th{font-size:10.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--muted);padding:6px 5px;text-align:right;white-space:nowrap}
+table.mx th:first-child{text-align:left}
+table.mx td{padding:6px 5px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+table.mx td:first-child{text-align:left;white-space:normal;min-width:96px}
+table.mx td.z{color:#4f666b}
+table.mx tr.tot td{font-weight:700;border-top:2px solid var(--gold);color:var(--gold)}
+table.mx td.rt{font-weight:600}
+.mxwrap{overflow-x:auto}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:12px}
+.strip div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#0c1d25}
+.strip b{display:block;font:700 20px/1.15 var(--sans);letter-spacing:-.01em}
+.strip span{font-size:12px;color:var(--muted)}
+
+/* review */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center}
+.kpi b{display:block;font:700 30px/1.1 var(--sans);letter-spacing:-.015em}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:14px}
+.hb{display:grid;grid-template-columns:minmax(110px,170px) 1fr 84px 64px;gap:10px;align-items:center;margin:7px 0;font-size:13.5px}
+.hb .tr{height:12px;background:#0c1d25;border-radius:4px;overflow:hidden}
+.hb .tr i{display:block;height:100%;background:var(--gold);border-radius:0 4px 4px 0}
+.hb .v{text-align:right}.hb .p{text-align:right;color:var(--muted);font-size:12.5px}
+.delta{font-size:12px}
+.delta.up{color:var(--bad)}.delta.dn{color:var(--good)}
+.reviewtext{white-space:pre-wrap;line-height:1.6}
+.cchart{display:flex;align-items:flex-end;gap:8px;height:170px;border-bottom:1px solid var(--line);padding-bottom:2px;margin-top:6px}
+.cchart .c{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.cchart .c i{display:block;width:100%;max-width:44px;background:var(--gold);border-radius:4px 4px 0 0;min-height:2px}
+.cchart .c.sel i{background:var(--cream)}
+.cchart .c span.n{font-size:11.5px;color:var(--muted);margin-bottom:3px}
+.xl{display:flex;gap:8px;font-size:11px;color:var(--muted);margin-top:5px}.xl span{flex:1;text-align:center}
+
+/* dialogs / drawer */
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;opacity:0;pointer-events:none;transition:opacity .15s}
+#scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:70;top:0;right:0;bottom:0;width:min(460px,100%);background:#0d1d25;border-left:1px solid var(--line);padding:22px;overflow:auto;transform:translateX(102%);transition:transform .2s;visibility:hidden}
+.drawer.on{transform:none;visibility:visible}
+.drawer h2{font-size:30px;margin:0 36px 10px 0}
+.drawer .x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);font-size:20px;line-height:1}
+.field{margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toast{position:fixed;left:50%;bottom:calc(24px + var(--bot));transform:translateX(-50%);background:#17313b;border:1px solid var(--line);padding:10px 16px;border-radius:10px;z-index:95;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:92vw}
+.toast.err{border-color:var(--bad)}
+.tip{position:fixed;z-index:96;pointer-events:none;background:#0a171e;border:1px solid var(--line);padding:5px 9px;border-radius:6px;font-size:12.5px;display:none;max-width:260px}
+.help{font-size:13px;color:var(--muted);line-height:1.55}.help ol{padding-left:20px;margin:8px 0}
+code{background:#0c1d25;padding:1px 6px;border-radius:5px;font-size:12.5px}
+.edit-only{display:none}body.editing .edit-only{display:revert}
+body:not(.editing) .gate{display:block}body.editing .gate{display:none}
+.gate{display:none;max-width:520px;margin:60px auto;text-align:center}
+.gate h2{font-size:38px;margin-bottom:10px}
+body:not(.editing) .app{display:none}
+footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted)}
+footer button{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:12.5px;padding:4px 6px}
+
+@media (max-width:1100px){.entry{grid-template-columns:140px minmax(0,1fr) 120px}.entry .ecard,.entry .ecat,.entry .eadd{grid-column:auto}}
+@media (max-width:1000px){.pgrid{grid-template-columns:minmax(0,1fr)}.sticky{position:static}.pjump{margin-left:0}}
+.pgrid>*{min-width:0}
+@media (max-width:860px){
+  nav.main{display:none}.brand{font-size:24px}.brand small{display:none}header.top{gap:10px}
+  .bottomnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(8,19,27,.96);border-top:1px solid var(--line);padding-bottom:var(--bot)}
+  .bottomnav button{flex:1;min-height:56px;background:none;border:0;color:var(--muted);font-weight:600;font-size:12.5px}
+  .bottomnav button[aria-current=page]{color:var(--gold)}
+  .entry{grid-template-columns:1fr 1fr}.entry .ed{order:1}.entry .ea{order:2}.entry .edsc{order:3;grid-column:1/-1}.entry .ecard{order:4}.entry .ecat{order:5}.entry .ekind{order:6}.entry .eadd{order:7;grid-column:1/-1}
+  .pjump{width:100%}.pjump>div{flex:1}.pjump select,.pjump #pSel{min-width:0;width:100%}.pbar h2{font-size:24px}
+  .hb{grid-template-columns:100px 1fr 76px}.hb .p{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bgfx"></div>
+<div id="pvBanner" hidden style="background:#1d3a42;color:#F4E6CA;text-align:center;font-size:13px;padding:6px 12px">Preview copy: your edits save here only, not to GitHub.</div>
+<header class="top">
+  <a class="brand" href="#period">Budget<small>4-5-4 periods · spend by category and card</small></a>
+  <nav class="main" aria-label="Sections">
+    <button data-nav="period">Period</button>
+    <button data-nav="review">Review</button>
+    <button data-nav="trends">Trends</button>
+  </nav>
+  <span class="sync" id="sync" hidden><i></i><span id="syncTxt"></span></span>
+</header>
+
+<main>
+  <div class="gate panel">
+    <h2>Private budget</h2>
+    <p class="sub">This page shows nothing without your access token. Paste it once on this device to unlock it.</p>
+    <div class="field" style="text-align:left"><label class="f" for="gTok">GitHub token</label><input type="password" id="gTok" placeholder="github_pat_…" autocomplete="off"></div>
+    <button class="btn primary" id="gGo">Unlock</button>
+    <p class="help" id="gMsg" style="margin-top:12px"></p>
+  </div>
+  <div class="app">
+    <section class="view" id="v-period"></section>
+    <section class="view" id="v-review"></section>
+    <section class="view" id="v-trends"></section>
+    <footer><span id="foot"></span> <button id="settingsBtn">Settings &amp; backup</button></footer>
+  </div>
+</main>
+<nav class="bottomnav" aria-label="Sections">
+  <button data-nav="period">Period</button><button data-nav="review">Review</button><button data-nav="trends">Trends</button>
+</nav>
+<div id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Details"></aside>
+<div class="tip" id="tip"></div>
+<datalist id="descs"></datalist>
+
+<script>
+/* ---------- config ---------- */
+const OWNER='joeyweast', REPO='budget-data', PATH='data/budget.json';
+const CARDS=['AMEX Gold','Capital One','Credit One','Ollo','Best Buy','Wells Fargo'];
+const CATS=['Groceries','Gas','Dining and drinks','Home and household','Health','Personal care','Vapes','Apps and digital','Shopping and other','One-time','Recurring bills','Subscriptions'];
+const KINDS=['Charge','Card payment','Income'];
+/* 4-5-4 calendar: fiscal year starts Sunday 2026-02-01; 12 periods of 4,5,4,4,5,4,4,5,4,4,5,4 weeks. */
+const FY0=new Date(2026,1,1), PLEN=[4,5,4,4,5,4,4,5,4,4,5,4];
+const PREVIEW=!!window.PT_PREVIEW;
+
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);return x};
+const today=()=>iso(new Date());
+const money=(n,sign)=>{const v=Math.round(n*100)/100;const s=Math.abs(v).toLocaleString('en-US',{style:'currency',currency:'USD'});return (v<0?'−':(sign&&v>0?'+':''))+s};
+const md=d=>(d.getMonth()+1)+'/'+d.getDate();
+const fmtD=s=>{const d=parse(s);return (d.getMonth()+1)+'/'+d.getDate()};
+const MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const uid=()=>'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const b64enc=s=>btoa(unescape(encodeURIComponent(s)));
+const b64dec=s=>decodeURIComponent(escape(atob(s.replace(/\n/g,''))));
+
+/* periods */
+/* Fiscal year = 52 or 53 weeks ending on the Saturday closest to Jan 31; FY is named for the year it ends in */
+function fyEnd(y){const d=new Date(y,0,31);let o=6-d.getDay();if(o>3)o-=7;return addDays(d,o)}
+const fyStart=y=>addDays(fyEnd(y-1),1);
+const fyWeeks=y=>Math.round((fyEnd(y)-fyStart(y))/864e5+1)/7;
+const plenOf=y=>{const l=PLEN.slice();l[11]+=fyWeeks(y)-52;return l};
+function periodIn(y,n){
+  const L=plenOf(y);let acc=0;for(let i=0;i<n;i++)acc+=L[i];
+  const start=addDays(fyStart(y),acc*7),end=addDays(start,L[n]*7-1),mid=addDays(start,Math.floor(L[n]*7/2));
+  return {key:iso(start),n:n+1,start,end,weeks:L[n],label:`P${n+1} ${MON[mid.getMonth()]} ${mid.getFullYear()} (${md(start)}-${md(end)})`,short:`P${n+1} ${MON[mid.getMonth()]}`,month:MONF[mid.getMonth()],fy:y};
+}
+function periodOf(dateStr){
+  const d=parse(dateStr);let y=d.getFullYear();if(d>fyEnd(y))y++;if(d<fyStart(y))y--;
+  const L=plenOf(y),w=Math.floor(Math.round((d-fyStart(y))/864e5)/7);
+  let acc=0,n=0;for(;n<11;n++){if(w<acc+L[n])break;acc+=L[n]}
+  return periodIn(y,n);
+}
+const nextPeriod=p=>periodOf(iso(addDays(p.end,1)));
+const prevPeriod=p=>periodOf(iso(addDays(p.start,-1)));
+/* fiscal years: named for the year the FY ends (Feb-Jan), FY2027 = Feb 2026-Jan 2027 */
+const FY_FIRST=2027;
+const fyPeriods=fy=>PLEN.map((_,i)=>periodIn(fy,i));
+function fyBounds(){
+  const cur=periodOf(today()).fy, last=data.tx.length?periodOf(data.tx.map(t=>t.date).sort().pop()).fy:cur;
+  return {min:FY_FIRST,max:Math.max(cur,last)+1};
+}
+const rangeTxt=p=>{const a=p.start,b=p.end,o={month:'short',day:'numeric'};const f=d=>d.toLocaleDateString('en-US',o);return a.getFullYear()===b.getFullYear()?`${f(a)} – ${f(b)}, ${b.getFullYear()}`:`${f(a)}, ${a.getFullYear()} – ${f(b)}, ${b.getFullYear()}`};
+function stepPeriod(p,dir){
+  const q=dir>0?nextPeriod(p):prevPeriod(p),b=fyBounds();
+  return (q.fy<b.min||q.fy>b.max)?null:q;
+}
+function pbarHtml(p){
+  const b=fyBounds(),fys=[];for(let y=b.min;y<=b.max;y++)fys.push(y);
+  const status=iso(p.end)<today()?'Closed':(iso(p.start)>today()?'Upcoming':'Current');
+  return `<div class="pbar">
+    <div class="pnav"><button class="btn arrow" data-pp="-1" aria-label="Previous period" ${stepPeriod(p,-1)?'':'disabled'}>‹</button><button class="btn arrow" data-pp="1" aria-label="Next period" ${stepPeriod(p,1)?'':'disabled'}>›</button></div>
+    <div class="ptitle"><div class="eyebrow">Fiscal Year ${p.fy}</div><h2>Period ${p.n} <span>· ${p.month}</span></h2><div class="range">${rangeTxt(p)}</div></div>
+    <span class="tag ${status==='Current'?'cur':''}">${status}</span>
+    <div class="pjump">
+      <div><label class="f" for="fySel">Fiscal year</label><select id="fySel">${fys.map(y=>`<option value="${y}" ${y===p.fy?'selected':''}>Fiscal Year ${y}</option>`).join('')}</select></div>
+      <div><label class="f" for="pSel">Period</label><select id="pSel">${fyPeriods(p.fy).map(x=>`<option value="${x.key}" ${x.key===p.key?'selected':''}>P${x.n} · ${x.month} (${md(x.start)}–${md(x.end)})</option>`).join('')}</select></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- state ---------- */
+let data={tx:[],reviews:[]}, token=lsGet('bg-token')||'', sha=null, previewDb=null, saving=Promise.resolve(), dirty=false;
+let ui={view:'period',pkey:null,q:'',last:{date:today(),card:'Wells Fargo',cat:'Groceries',kind:'Charge'}};
+try{const l=JSON.parse(lsGet('bg-last')||'null');if(l)ui.last=Object.assign(ui.last,l)}catch(e){}
+const editing=()=>!!token||PREVIEW;
+
+/* ---------- save: three-way merge by id ---------- */
+const COLS=['tx','reviews'];
+let base={};
+const snapAll=()=>{COLS.forEach(c=>base[c]=new Map(data[c].map(x=>[x.id,JSON.stringify(x)])))};
+function diffCol(c){
+  const cur=new Map(data[c].map(x=>[x.id,JSON.stringify(x)])),add=[],chg=[],del=[];
+  data[c].forEach(x=>{const b=base[c].get(x.id);if(b===undefined)add.push(x);else if(b!==cur.get(x.id))chg.push(x)});
+  base[c].forEach((_,id)=>{if(!cur.has(id))del.push(id)});
+  return {add,chg,del};
+}
+function applyCol(remote,d){
+  const gone=new Set(d.del),ed=new Map(d.chg.map(x=>[x.id,x]));
+  const out=remote.filter(x=>!gone.has(x.id)).map(x=>ed.get(x.id)||x);
+  const have=new Set(out.map(x=>x.id));d.add.forEach(x=>{if(!have.has(x.id))out.push(x)});
+  return out;
+}
+const api=p=>`https://api.github.com/repos/${OWNER}/${REPO}/contents/${p}`;
+const ghH=()=>({Authorization:'Bearer '+token,Accept:'application/vnd.github+json'});
+const norm=d=>({tx:d.tx||[],reviews:d.reviews||[]});
+const remote={
+  async get(){
+    if(PREVIEW){
+      if(!previewDb)throw new Error('no storage');
+      const s=await previewDb.doc('budget/state').get();const dat=s&&(s.data?s.data():s);
+      const fresh=dat&&dat.json&&dat.v===window.PT_INLINE.v;
+      return {data:norm(fresh?JSON.parse(dat.json):clone(window.PT_INLINE.data))};
+    }
+    const r=await fetch(api(PATH),{headers:ghH(),cache:'no-store'});
+    if(!r.ok){const e=new Error(r.status);e.status=r.status;throw e}
+    const j=await r.json();return {sha:j.sha,data:norm(JSON.parse(b64dec(j.content)))};
+  },
+  async put(d,sha,msg){
+    if(PREVIEW){await previewDb.doc('budget/state').set({json:JSON.stringify(d),updated:today(),v:window.PT_INLINE.v});return {ok:true}}
+    const r=await fetch(api(PATH),{method:'PUT',headers:ghH(),body:JSON.stringify({message:msg||'Update budget',content:b64enc(JSON.stringify(Object.assign({updated:today()},d),null,1)),sha})});
+    return {ok:r.ok,conflict:r.status===409||r.status===422,status:r.status};
+  }
+};
+function setSync(kind,txt){const el=$('#sync');el.hidden=!editing();el.className='sync '+kind;$('#syncTxt').textContent=txt}
+function save(msg){
+  if(!editing()){toast('Not unlocked on this device','err');return Promise.resolve(false)}
+  dirty=true;setSync('busy','Saving…');
+  saving=saving.then(async()=>{
+    try{
+      for(let a=0;a<4;a++){
+        const r=await remote.get();
+        const dTx=diffCol('tx'),dRv=diffCol('reviews');
+        const merged={tx:applyCol(r.data.tx,dTx),reviews:applyCol(r.data.reviews,dRv)};
+        const res=await remote.put(merged,r.sha,msg);
+        if(res.conflict)continue;
+        if(!res.ok)throw new Error(res.status||'failed');
+        data=merged;snapAll();dirty=false;setSync('ok',PREVIEW?'Preview · saved to this page':'Saved');
+        if(dTx.add.length||dTx.chg.length||dTx.del.length||dRv.add.length||dRv.chg.length)renderAll();
+        return true;
+      }
+      throw new Error('kept conflicting');
+    }catch(e){
+      setSync('err','Not saved');
+      toast(PREVIEW?'Preview couldn’t save ('+(e.message||e)+').':'Could not save to GitHub ('+(e.message||e)+'). Your change is still on screen; try again.','err');
+      return false;
+    }
+  });
+  return saving;
+}
+async function load(){
+  if(PREVIEW){
+    data=norm(clone(window.PT_INLINE.data));
+    try{const c=await Promise.race([claude.use('db'),new Promise(r=>setTimeout(()=>r(null),4000))]);if(c){previewDb=c;data=(await remote.get()).data}}catch(e){console.warn(e)}
+    snapAll();setSync(previewDb?'ok':'err',previewDb?'Preview · saved to this page':'Preview · not saving');return true;
+  }
+  if(!token)return false;
+  try{const r=await remote.get();data=r.data;sha=r.sha;snapAll();setSync('ok','Synced');return true}
+  catch(e){
+    setSync('err',e.status===401?'Token rejected':(e.status===404?'Repo not found':'Could not reach repo'));
+    const bad=e.status===401||e.status===404||e.status===403;
+    $('#gMsg').textContent=bad?'GitHub didn’t accept that token for '+OWNER+'/'+REPO+'. Check the token and its repository access.':'Could not reach GitHub. Your token is saved; reload to try again.';
+    if(bad){token='';lsSet('bg-token',null)}
+    return false;
+  }
+}
+
+/* ---------- UI bits ---------- */
+function toast(msg,kind){const t=document.createElement('div');t.className='toast'+(kind==='err'?' err':'');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),kind==='err'?6000:2400)}
+function ask(msg,ok='OK',danger=false){
+  return new Promise(res=>{
+    const w=document.createElement('div');w.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.65);display:grid;place-items:center;padding:20px';
+    w.innerHTML=`<div role="dialog" aria-modal="true" style="background:#0d1d25;border:1px solid var(--line);border-radius:12px;padding:20px;max-width:380px;width:100%"><p style="margin:0 0 16px">${esc(msg)}</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" data-a="0">Cancel</button><button class="btn ${danger?'danger':'primary'}" data-a="1">${esc(ok)}</button></div></div>`;
+    w.onclick=e=>{const a=e.target.getAttribute('data-a');if(a!==null||e.target===w){w.remove();res(a==='1')}};
+    document.body.appendChild(w);w.querySelector('[data-a="1"]').focus();
+  });
+}
+const scrim=$('#scrim'),drawer=$('#drawer');
+function openDrawer(){scrim.classList.add('on');drawer.classList.add('on')}
+function closeDrawer(){scrim.classList.remove('on');drawer.classList.remove('on')}
+scrim.addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
+/* ---------- compute ---------- */
+const inP=(t,p)=>t.date>=iso(p.start)&&t.date<=iso(p.end);
+function totals(list){
+  const m={},colT={},rowT={};let grand=0;
+  CATS.forEach(c=>{m[c]={};rowT[c]=0});CARDS.forEach(k=>colT[k]=0);
+  const pay={},inc={};CARDS.forEach(k=>{pay[k]=0;inc[k]=0});let payT=0,incT=0,nCharge=0;
+  list.forEach(t=>{
+    if(t.kind==='Charge'){nCharge++;if(!m[t.cat]){m[t.cat]={};rowT[t.cat]=0}m[t.cat][t.card]=(m[t.cat][t.card]||0)+t.amount;rowT[t.cat]+=t.amount;colT[t.card]=(colT[t.card]||0)+t.amount;grand+=t.amount}
+    else if(t.kind==='Card payment'){pay[t.card]=(pay[t.card]||0)+t.amount;payT+=t.amount}
+    else if(t.kind==='Income'){inc[t.card]=(inc[t.card]||0)+t.amount;incT+=t.amount}
+  });
+  return {m,colT,rowT,grand,pay,payT,incT,nCharge};
+}
+function periodsList(){
+  const b=fyBounds(),out=[];for(let y=b.min;y<=b.max;y++)out.push(...fyPeriods(y));return out;
+}
+function curKey(){return periodOf(today()).key}
+
+/* ---------- PERIOD view ---------- */
+function renderPeriod(){
+  const per=periodsList();let p=per.find(x=>x.key===ui.pkey)||periodOf(today());ui.pkey=p.key;
+  const status=iso(p.end)<today()?'Closed':(iso(p.start)>today()?'Upcoming':'Current');
+  const list=data.tx.filter(t=>inP(t,p));
+  const T=totals(list);
+  const q=ui.q.trim().toLowerCase();
+  const shown=list.filter(t=>!q||(t.desc+' '+t.card+' '+(t.cat||'')+' '+(t.note||'')).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date)||0);
+  const L=ui.last;
+  const dateVal=(L.date>=iso(p.start)&&L.date<=iso(p.end))?L.date:(today()>=iso(p.start)&&today()<=iso(p.end)?today():iso(p.end));
+  $('#v-period').innerHTML=`
+  ${pbarHtml(p)}
+  <div class="panel entrypanel">
+        <div class="entry">
+          <div class="ed"><label class="f" for="eDate">Date</label><input type="date" id="eDate" value="${dateVal}"></div>
+          <div class="edsc"><label class="f" for="eDesc">Description</label><input type="text" id="eDesc" list="descs" autocomplete="off" placeholder="e.g. Publix"></div>
+          <div class="ea"><label class="f" for="eAmt">Amount</label><input type="text" id="eAmt" inputmode="decimal" placeholder="0.00"></div>
+          <div class="ecard"><label class="f" for="eCard">Card</label><select id="eCard">${CARDS.map(c=>`<option ${c===L.card?'selected':''}>${c}</option>`).join('')}</select></div>
+          <div class="ecat" id="eCatWrap"><label class="f" for="eCat">Category</label><select id="eCat">${CATS.map(c=>`<option ${c===L.cat?'selected':''}>${c}</option>`).join('')}</select></div>
+          <div class="eadd"><label class="f">&nbsp;</label><button class="btn primary" id="eAdd" style="width:100%">Add</button></div>
+          <div class="full ekind"><div class="seg" id="eKind" role="group" aria-label="Kind">${KINDS.map(k=>`<button type="button" data-k="${k}" aria-pressed="${k===L.kind}">${k}</button>`).join('')}</div><button class="btn sm" id="pasteBtn">Paste several</button><span class="sub">Refunds and repayments: enter a negative amount in the original charge’s category.</span></div>
+        </div>
+  </div>
+  <div class="pgrid">
+    <div>
+      <div class="txhead"><h3>Transactions <span class="sub">${list.length}</span></h3><input type="search" id="tq" placeholder="Filter…" value="${esc(ui.q)}" aria-label="Filter transactions"></div>
+      <div class="txlist" id="txlist">${txRows(shown)}</div>
+    </div>
+    <div class="sticky">
+      <div class="panel">${matrixHtml(T)}</div>
+    </div>
+  </div>`;
+  syncKind();
+}
+function txRows(l){
+  if(!l.length)return '<div class="empty" style="border:0">No transactions in this period yet.</div>';
+  return l.map(t=>`<button class="tx" data-edit="${t.id}"><span class="d">${fmtD(t.date)}</span><span class="m"><span class="t">${esc(t.desc)}</span><span class="s">${esc(t.card)} · ${t.kind==='Charge'?esc(t.cat):`<span class="kindpill ${t.kind==='Income'?'inc':''}">${t.kind}</span>`}${t.note?` · ${esc(t.note)}`:''}</span></span><span class="num ${t.amount<0?'neg':''}">${money(t.amount)}</span></button>`).join('');
+}
+function matrixHtml(T){
+  const usedCards=CARDS.filter(k=>CATS.some(c=>(T.m[c]||{})[k])||T.pay[k]||T.colT[k]);
+  const cols=usedCards.length?usedCards:CARDS.slice(0,3);
+  const cell=v=>v?money(v):'<span class="z">·</span>';
+  return `<h3 style="font-size:20px;margin-bottom:2px">Spend by category and card</h3>
+  <div class="sub" style="margin-bottom:10px">Charges only. Compare each card’s TOTAL with its app.</div>
+  <div class="mxwrap"><table class="mx"><thead><tr><th>Category</th>${cols.map(k=>`<th>${esc(k)}</th>`).join('')}<th>Total</th></tr></thead><tbody>
+  ${CATS.map(c=>`<tr><td>${esc(c)}</td>${cols.map(k=>`<td class="${(T.m[c]||{})[k]?'':'z'}">${cell((T.m[c]||{})[k])}</td>`).join('')}<td class="rt">${T.rowT[c]?money(T.rowT[c]):'<span class="z">·</span>'}</td></tr>`).join('')}
+  <tr class="tot"><td>TOTAL</td>${cols.map(k=>`<td>${money(T.colT[k]||0)}</td>`).join('')}<td>${money(T.grand)}</td></tr></tbody></table></div>
+  <div class="strip">
+    <div><b>${money(T.payT)}</b><span>Card payments (not spending)</span></div>
+    <div><b>${money(T.incT)}</b><span>Income (not spending)</span></div>
+    <div><b>${T.nCharge}</b><span>Charge entries</span></div>
+  </div>
+  ${CARDS.some(k=>T.pay[k])?`<div class="sub" style="margin-top:10px">Payments by card: ${CARDS.filter(k=>T.pay[k]).map(k=>`${esc(k)} ${money(T.pay[k])}`).join(' · ')}</div>`:''}`;
+}
+function syncKind(){
+  const k=ui.last.kind;const w=$('#eCatWrap');if(w)w.style.visibility=k==='Charge'?'visible':'hidden';
+}
+function parseAmt(s){const v=parseFloat(String(s).replace(/[$,\s]/g,'').replace('−','-'));return isNaN(v)?null:Math.round(v*100)/100}
+function addTx(){
+  const date=$('#eDate').value,desc=$('#eDesc').value.trim(),amt=parseAmt($('#eAmt').value),card=$('#eCard').value,kind=ui.last.kind,cat=$('#eCat').value;
+  if(!date||!desc||amt==null){toast('Add a date, description and amount','err');(!desc?$('#eDesc'):$('#eAmt')).focus();return}
+  const t={id:uid(),date,desc,card,amount:amt,kind,cat:kind==='Charge'?cat:(kind==='Income'?'Income':''),note:''};
+  data.tx.push(t);
+  ui.last=Object.assign(ui.last,{date,card,cat});lsSet('bg-last',JSON.stringify(ui.last));
+  ui.pkey=periodOf(date).key;
+  renderAll();save('Add: '+desc);
+  const d=$('#eDesc');if(d)d.focus();
+  toast(`Added ${money(amt)} · ${desc}`);
+}
+function fillFromHistory(){
+  const desc=$('#eDesc').value.trim().toLowerCase();if(!desc)return;
+  const m=[...data.tx].sort((a,b)=>b.date.localeCompare(a.date)).find(t=>t.desc.toLowerCase()===desc);
+  if(!m)return;
+  if($('#eCard').value===ui.last.card)$('#eCard').value=m.card;
+  if(m.kind==='Charge')$('#eCat').value=m.cat;
+  ui.last.kind=m.kind;$$('#eKind button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===m.kind));syncKind();
+  if(!$('#eAmt').value.trim())$('#eAmt').value=m.amount;
+}
+
+/* edit transaction */
+function editTx(id){
+  const t=data.tx.find(x=>x.id===id);if(!t)return;
+  drawer.innerHTML=`<button class="x" data-close aria-label="Close">×</button><h2>Edit transaction</h2>
+    <div class="row2"><div class="field"><label class="f">Date</label><input type="date" id="xDate" value="${t.date}"></div><div class="field"><label class="f">Amount</label><input type="text" id="xAmt" inputmode="decimal" value="${t.amount}"></div></div>
+    <div class="field"><label class="f">Description</label><input type="text" id="xDesc" list="descs" value="${esc(t.desc)}"></div>
+    <div class="row2"><div class="field"><label class="f">Card</label><select id="xCard">${CARDS.map(c=>`<option ${c===t.card?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label class="f">Kind</label><select id="xKind">${KINDS.map(k=>`<option ${k===t.kind?'selected':''}>${k}</option>`).join('')}</select></div></div>
+    <div class="field" id="xCatW"><label class="f">Category</label><select id="xCat">${CATS.map(c=>`<option ${c===t.cat?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label class="f">Note</label><input type="text" id="xNote" value="${esc(t.note||'')}"></div>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-top:16px"><button class="btn danger" id="xDel">Delete</button><div style="display:flex;gap:8px"><button class="btn" data-close>Cancel</button><button class="btn primary" id="xSave">Save</button></div></div>`;
+  openDrawer();
+  const catVis=()=>{$('#xCatW').style.display=$('#xKind').value==='Charge'?'':'none'};$('#xKind').onchange=catVis;catVis();
+  $('#xSave').onclick=()=>{
+    const a=parseAmt($('#xAmt').value);if(a==null||!$('#xDate').value){toast('Check the date and amount','err');return}
+    const k=$('#xKind').value;
+    Object.assign(t,{date:$('#xDate').value,amount:a,desc:$('#xDesc').value.trim(),card:$('#xCard').value,kind:k,cat:k==='Charge'?$('#xCat').value:(k==='Income'?'Income':''),note:$('#xNote').value.trim()});
+    closeDrawer();renderAll();save('Edit: '+t.desc);
+  };
+  $('#xDel').onclick=async()=>{
+    if(!(await ask(`Delete “${t.desc}” (${money(t.amount)})? This is saved right away.`,'Delete',true)))return;
+    data.tx=data.tx.filter(x=>x.id!==id);closeDrawer();renderAll();save('Remove: '+t.desc);
+  };
+}
+
+/* paste several */
+function pasteDrawer(){
+  drawer.innerHTML=`<button class="x" data-close aria-label="Close">×</button><h2>Paste several</h2>
+    <p class="help">One charge per line: <code>date description amount</code>, for example <code>10/24 Nordstrom Rack 310.84</code>. All lines use the card and category chosen below. Dates without a year use the current year.</p>
+    <div class="row2"><div class="field"><label class="f">Card</label><select id="pCard">${CARDS.map(c=>`<option ${c===ui.last.card?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label class="f">Category</label><select id="pCat">${CATS.map(c=>`<option ${c===ui.last.cat?'selected':''}>${c}</option>`).join('')}</select></div></div>
+    <div class="field"><textarea id="pText" rows="9" placeholder="10/24 Nordstrom Rack 310.84&#10;10/24 TJ Maxx 87.85"></textarea></div>
+    <div id="pPrev" class="sub"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn" data-close>Cancel</button><button class="btn primary" id="pGo">Add</button></div>`;
+  openDrawer();
+  const parseLines=()=>$('#pText').value.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const m=l.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\s+(.+?)\s+(-?\$?[\d,]*\.?\d+)$/);if(!m)return {bad:l};
+    let y=m[3]?+m[3]:new Date().getFullYear();if(y<100)y+=2000;
+    return {date:`${y}-${pad(+m[1])}-${pad(+m[2])}`,desc:m[4],amount:parseAmt(m[5])};
+  });
+  $('#pText').oninput=()=>{const r=parseLines();const bad=r.filter(x=>x.bad).length;$('#pPrev').textContent=r.length?`${r.length-bad} ready${bad?`, ${bad} couldn’t be read`:''}`:''};
+  $('#pGo').onclick=()=>{
+    const r=parseLines();if(!r.length||r.some(x=>x.bad)){toast('Some lines couldn’t be read. Format: 10/24 Name 12.34','err');return}
+    r.forEach(x=>data.tx.push({id:uid(),date:x.date,desc:x.desc,card:$('#pCard').value,amount:x.amount,kind:'Charge',cat:$('#pCat').value,note:''}));
+    closeDrawer();renderAll();save(`Add ${r.length} charges`);toast(`Added ${r.length}`);
+  };
+}
+
+/* ---------- REVIEW view ---------- */
+function renderReview(){
+  const per=periodsList();let p=per.find(x=>x.key===ui.pkey)||periodOf(today());
+  const T=totals(data.tx.filter(t=>inP(t,p)));
+  const pv=prevPeriod(p), PT=totals(data.tx.filter(t=>inP(t,pv))), hasPrev=PT.nCharge>0;
+  const interest=data.tx.filter(t=>inP(t,p)&&t.kind==='Charge'&&/interest/i.test(t.desc)).reduce((s,t)=>s+t.amount,0);
+  const rows=CATS.map(c=>({k:c,v:T.rowT[c]||0,pv:PT.rowT[c]||0})).filter(r=>r.v||r.pv).sort((a,b)=>b.v-a.v);
+  const max=Math.max(1,...rows.map(r=>r.v));
+  const rv=data.reviews.find(r=>r.id===p.key);
+  const net=T.incT-T.grand;
+  $('#v-review').innerHTML=`
+  ${pbarHtml(p)}
+  <div class="kpis">
+    <div class="kpi"><b>${money(T.grand)}</b><span>Total spending · ${T.nCharge} charges</span></div>
+    <div class="kpi"><b>${money(T.incT)}</b><span>Income</span></div>
+    <div class="kpi"><b class="${net<0?'':'neg'}" style="${net<0?'color:var(--bad)':''}">${money(net,true)}</b><span>Income minus spending</span></div>
+    <div class="kpi"><b>${money(T.payT)}</b><span>Card payments</span></div>
+    <div class="kpi"><b>${money(interest)}</b><span>Interest charges</span></div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3 style="font-size:22px">Where it went</h3><div class="sub" style="margin-bottom:8px">${hasPrev?`Change is vs. ${esc(pv.short)}.`:'No earlier period to compare with.'}</div>
+      ${rows.length?rows.map(r=>{const d=r.v-r.pv;return `<div class="hb" data-tip="${esc(r.k)}: ${money(r.v)}${hasPrev?` (was ${money(r.pv)})`:''}"><span>${esc(r.k)}</span><span class="tr"><i style="width:${Math.max(0,r.v)/max*100}%"></i></span><span class="v">${money(r.v)}</span><span class="p">${T.grand?Math.round(r.v/T.grand*100)+'%':''}</span></div>${hasPrev&&Math.abs(d)>=1?`<div class="delta ${d>0?'up':'dn'}" style="margin:-4px 0 4px 0;text-align:right">${money(d,true)} vs ${esc(pv.short)}</div>`:''}`}).join(''):'<div class="empty">No charges in this period.</div>'}
+    </div>
+    <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3 style="font-size:22px">Period review</h3><button class="btn sm edit-only" id="revEdit">${rv?'Edit':'Write review'}</button></div>
+      ${rv&&rv.text?`<div class="reviewtext" style="margin-top:10px">${esc(rv.text)}</div>`:'<div class="empty" style="margin-top:10px">No written review for this period yet.</div>'}
+    </div>
+  </div>`;
+}
+function editReview(){
+  const p=periodsList().find(x=>x.key===ui.pkey)||periodOf(today());
+  const rv=data.reviews.find(r=>r.id===p.key);
+  drawer.innerHTML=`<button class="x" data-close aria-label="Close">×</button><h2>Review · ${esc(p.short)}</h2>
+    <div class="field"><textarea id="rvText" rows="16" placeholder="What stood out? What to compare next period? What’s still open?">${esc(rv?rv.text:'')}</textarea></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn" data-close>Cancel</button><button class="btn primary" id="rvSave">Save</button></div>`;
+  openDrawer();
+  $('#rvSave').onclick=()=>{
+    const text=$('#rvText').value.trim();
+    if(rv){text?rv.text=text:data.reviews=data.reviews.filter(r=>r!==rv)}else if(text)data.reviews.push({id:p.key,text});
+    closeDrawer();renderAll();save('Review: '+p.short);
+  };
+}
+
+/* ---------- TRENDS view ---------- */
+function renderTrends(){
+  const per=periodsList().filter(p=>data.tx.some(t=>inP(t,p)));
+  const vals=per.map(p=>totals(data.tx.filter(t=>inP(t,p))).grand);
+  const max=Math.max(1,...vals);
+  const merch={};data.tx.filter(t=>t.kind==='Charge').forEach(t=>{const k=t.desc.trim().toLowerCase();(merch[k]=merch[k]||{n:t.desc.trim(),v:0,c:0});merch[k].v+=t.amount;merch[k].c++});
+  const top=Object.values(merch).sort((a,b)=>b.v-a.v).slice(0,10),tmax=Math.max(1,...top.map(x=>x.v));
+  const byCard={};data.tx.filter(t=>t.kind==='Charge').forEach(t=>byCard[t.card]=(byCard[t.card]||0)+t.amount);
+  const cardRows=Object.entries(byCard).sort((a,b)=>b[1]-a[1]),cmax=Math.max(1,...cardRows.map(x=>x[1]));
+  $('#v-trends').innerHTML=`<h2 style="font-size:32px;margin-bottom:12px">Trends</h2>
+  <div class="cols">
+    <div class="panel"><h3 style="font-size:22px">Spending per period</h3><div class="sub">Charges only; card payments and income excluded.</div>
+      ${per.length?`<div class="cchart">${per.map((p,i)=>`<div class="c ${p.key===ui.pkey?'sel':''}" data-tip="${esc(p.label)}: ${money(vals[i])}"><span class="n">${Math.round(vals[i]).toLocaleString()}</span><i style="height:${vals[i]/max*100}%"></i></div>`).join('')}</div><div class="xl">${per.map(p=>`<span>${esc(p.short)}</span>`).join('')}</div>`:'<div class="empty">Nothing to chart yet.</div>'}
+      ${per.length<3?'<div class="sub" style="margin-top:10px">This fills in as more periods get entries.</div>':''}
+    </div>
+    <div class="panel"><h3 style="font-size:22px">Top places, all time</h3><div class="sub" style="margin-bottom:8px">Grouped by description.</div>
+      ${top.map(x=>`<div class="hb" data-tip="${esc(x.n)}: ${money(x.v)} over ${x.c} charge${x.c>1?'s':''}"><span>${esc(x.n)}</span><span class="tr"><i style="width:${x.v/tmax*100}%"></i></span><span class="v">${money(x.v)}</span><span class="p">${x.c}×</span></div>`).join('')||'<div class="empty">No charges yet.</div>'}
+    </div>
+    <div class="panel"><h3 style="font-size:22px">By card, all time</h3>
+      ${cardRows.map(([k,v])=>`<div class="hb" data-tip="${esc(k)}: ${money(v)}"><span>${esc(k)}</span><span class="tr"><i style="width:${v/cmax*100}%"></i></span><span class="v">${money(v)}</span><span class="p"></span></div>`).join('')||'<div class="empty">No charges yet.</div>'}
+    </div>
+  </div>`;
+}
+
+/* ---------- settings ---------- */
+function openSettings(){
+  if(PREVIEW){
+    drawer.innerHTML=`<button class="x" data-close aria-label="Close">×</button><h2>Preview mode</h2>
+      <p class="help">A tinkering copy using your P9 numbers from Notion. Edits save to <b>this page only</b>. On the real site, entries save to a private repo.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger" id="sReset">Reset to original data</button></div>`;
+    openDrawer();
+    $('#sReset').onclick=async()=>{if(!(await ask('Throw away every preview edit?','Reset',true)))return;data=norm(clone(window.PT_INLINE.data));closeDrawer();renderAll();save('Reset');toast('Reset')};
+    return;
+  }
+  drawer.innerHTML=`<button class="x" data-close aria-label="Close">×</button><h2>Settings</h2>
+    <p class="help">Your data lives in the private repo <code>${OWNER}/${REPO}</code>. This page loads and saves it with your token, which stays only in this browser.</p>
+    <div class="field"><label class="f">GitHub token</label><input type="password" id="sTok" value="${esc(token)}" autocomplete="off"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="sSave">Update token</button><button class="btn danger" id="sOff">Lock this device</button></div>
+    <h3 style="font-size:22px;margin:20px 0 8px">Backup</h3><button class="btn" id="sExp">Download budget.json</button>`;
+  openDrawer();
+  $('#sSave').onclick=async()=>{token=$('#sTok').value.trim();lsSet('bg-token',token||null);closeDrawer();await boot()};
+  $('#sOff').onclick=()=>{token='';lsSet('bg-token',null);closeDrawer();data={tx:[],reviews:[]};boot()};
+  $('#sExp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(Object.assign({updated:today()},data),null,1)],{type:'application/json'}));a.download='budget.json';a.click()};
+}
+
+/* ---------- routing / events ---------- */
+function setView(v){
+  ui.view=v;$$('section.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  $$('[data-nav]').forEach(b=>b.dataset.nav===v?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  try{if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v)}catch(e){}
+  window.scrollTo(0,0);
+}
+function renderAll(){
+  document.body.classList.toggle('editing',editing());$('#pvBanner').hidden=!PREVIEW;
+  if(!editing())return;
+  $('#descs').innerHTML=[...new Set(data.tx.map(t=>t.desc))].sort().map(d=>`<option value="${esc(d)}">`).join('');
+  renderPeriod();renderReview();renderTrends();
+  $('#foot').textContent=`${data.tx.length} transactions · `;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-nav],[data-close],[data-edit],[data-pp],[data-k]');
+  if(!t)return;
+  if(t.dataset.nav){setView(t.dataset.nav);return}
+  if(t.hasAttribute('data-close')){closeDrawer();return}
+  if(t.dataset.edit){editTx(t.dataset.edit);return}
+  if(t.dataset.pp){const p=periodOf(ui.pkey),q=stepPeriod(p,t.dataset.pp==='1'?1:-1);if(q){ui.pkey=q.key;renderAll()}return}
+  if(t.dataset.k&&t.closest('#eKind')){ui.last.kind=t.dataset.k;$$('#eKind button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===t.dataset.k));syncKind();return}
+});
+document.addEventListener('click',e=>{
+  if(e.target.id==='eAdd')addTx();
+  if(e.target.id==='pasteBtn')pasteDrawer();
+  if(e.target.id==='revEdit')editReview();
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='pSel'){ui.pkey=e.target.value;renderAll()}
+  if(e.target.id==='fySel'){const p=periodOf(ui.pkey);ui.pkey=fyPeriods(+e.target.value)[p.n-1].key;renderAll()}
+  if(e.target.id==='eDesc')fillFromHistory();
+});
+document.addEventListener('input',e=>{if(e.target.id==='tq'){ui.q=e.target.value;const p=periodOf(ui.pkey);const q=ui.q.trim().toLowerCase();
+  const l=data.tx.filter(t=>inP(t,p)).filter(t=>!q||(t.desc+' '+t.card+' '+(t.cat||'')+' '+(t.note||'')).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));$('#txlist').innerHTML=txRows(l)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.closest&&e.target.closest('.entry')&&e.target.tagName!=='BUTTON'){e.preventDefault();if(e.target.id==='eDesc')fillFromHistory();addTx()}});
+$('#settingsBtn').onclick=openSettings;
+$('#gGo').onclick=async()=>{token=$('#gTok').value.trim();if(!token)return;lsSet('bg-token',token);await boot()};
+$('#gTok').addEventListener('keydown',e=>{if(e.key==='Enter')$('#gGo').click()});
+window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(['period','review','trends'].includes(v))setView(v)});
+window.addEventListener('beforeunload',e=>{if(dirty&&!PREVIEW){e.preventDefault();e.returnValue=''}});
+const tip=$('#tip');
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.style.display='none';return}tip.textContent=t.dataset.tip;tip.style.display='block'});
+document.addEventListener('mousemove',e=>{if(tip.style.display==='block'){tip.style.left=Math.min(e.clientX+14,innerWidth-270)+'px';tip.style.top=(e.clientY+16)+'px'}});
+
+async function boot(){
+  const ok=await load();
+  document.body.classList.toggle('editing',ok&&editing());
+  if(!ok)return;
+  if(!ui.pkey)ui.pkey=(PREVIEW&&data.tx.length?periodOf(data.tx.map(t=>t.date).sort().pop()).key:periodOf(today()).key);
+  renderAll();
+  const v=location.hash.slice(1);setView(['period','review','trends'].includes(v)?v:'period');
+}
+boot();
+</script>
+</body>
+</html>
